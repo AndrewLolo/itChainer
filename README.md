@@ -1,8 +1,9 @@
 # itChainer
 
 ## Installation
+```javascript
 npm i itchainer
-
+```
 ## example:
 ```javascript
 'use strict';
