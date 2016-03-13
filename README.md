@@ -1,8 +1,10 @@
 # itChainer
 
+## Installation
 npm i itchainer
 
-example:
+## example:
+```javascript
 'use strict';
 const itchainer = require('itChainer').chain;
 let Arr = [1, 2, 3];
@@ -18,3 +20,4 @@ let result = itchainer(Arr)
 
 
 console.log(result);
+```
