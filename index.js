@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["itChainer"] = factory();
+		exports["itchainer"] = factory();
 	else
-		root["itChainer"] = factory();
+		root["itchainer"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -91,6 +91,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Filter2 = _interopRequireDefault(_Filter);
 
+	var _Reduce = __webpack_require__(4);
+
+	var _Reduce2 = _interopRequireDefault(_Reduce);
+
+	var _ForEach = __webpack_require__(5);
+
+	var _ForEach2 = _interopRequireDefault(_ForEach);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -105,36 +113,48 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _createClass(_class, [{
 	        key: 'map',
-	        value: function map(handler) {
-	            this.append(_Map2.default, handler);
-	            return this;
+	        value: function map() {
+	            return this.append(_Map2.default, arguments);
 	        }
 	    }, {
 	        key: 'filter',
-	        value: function filter(handler) {
-	            this.append(_Filter2.default, handler);
-	            return this;
+	        value: function filter() {
+	            return this.append(_Filter2.default, arguments);
+	        }
+	    }, {
+	        key: 'forEach',
+	        value: function forEach() {
+	            return this.append(_ForEach2.default, arguments);
+	        }
+	    }, {
+	        key: 'reduce',
+	        value: function reduce() {
+	            return this.append(_Reduce2.default, arguments);
 	        }
 	    }, {
 	        key: 'append',
-	        value: function append(method, handler) {
+	        value: function append(method, params) {
 	            var queueElement = {
 	                method: method,
-	                handler: handler
+	                params: params
 	            };
 	            this.queue.push(queueElement);
+	            return this;
 	        }
 	    }, {
 	        key: 'process',
 	        value: function process(queueElement, value) {
-	            var method = queueElement.method;
-	            var handler = queueElement.handler;
-	            return method(value, handler);
+	            var method = queueElement.method.bind(this, value);
+	            var params = queueElement.params;
+	            return method.apply(null, params);
 	        }
 	    }, {
 	        key: 'run',
 	        value: function run() {
 	            for (var i = 0; i < this.queue.length; i++) {
+	                if (!this.value) {
+	                    return null;
+	                }
 	                this.value = this.process(this.queue[i], this.value);
 	            }
 	            return this.value;
@@ -151,14 +171,19 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	exports.default = function (array, handler) {
 	    var resultArray = [];
+	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
+	        throw new TypeError('Incorrect input data: not array');
+	    }
 	    for (var i = 0; i < array.length; ++i) {
 	        resultArray.push(handler(array[i], i, array));
 	    }
@@ -169,20 +194,79 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 3 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	exports.default = function (array, handler) {
 	    var resultArray = [];
+	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
+	        throw new TypeError('Incorrect input data: not array');
+	    }
 	    for (var i = 0; i < array.length; ++i) {
 	        if (handler(array[i], i, array)) {
 	            resultArray.push(array[i]);
 	        }
 	    }
 	    return resultArray;
+	};
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	exports.default = function (array, handler) {
+	    var initialValue = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
+	    var length = array.length;
+	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
+	        throw new TypeError('Incorrect input data: not array');
+	    }
+	    if (length === 0) {
+	        return null;
+	    }
+	    if (length === 1) {
+	        return array[0];
+	    }
+	    var aggregator = initialValue;
+	    for (var i = 0; i < array.length; ++i) {
+	        aggregator = handler(aggregator, array[i], i, array);
+	    }
+	    return aggregator;
+	};
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	exports.default = function (array, handler) {
+	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
+	        throw new TypeError('Incorrect input data: not array');
+	    }
+	    for (var i = 0; i < array.length; ++i) {
+	        handler(array[i], i, array);
+	    }
+	    return array;
 	};
 
 /***/ }

@@ -11,6 +11,10 @@ describe('Map', () => {
         Arr = [1, 2, 10];
     });
 
+    it('should throw error for incorrect input', () => {
+        expect(() => { map(2, handler); }).toThrow(new TypeError("Incorrect input data: not array"));
+    });
+
     it('should process array', () => {
         let result = map(Arr, handler);
         expect(result).toEqual([5, 10, 50]);

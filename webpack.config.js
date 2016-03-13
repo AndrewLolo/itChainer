@@ -6,7 +6,7 @@ module.exports = {
     output: {
         path: build,
         filename: 'index.js',
-        library: 'itChainer',
+        library: 'itchainer',
         libraryTarget: 'umd'
     },
 

@@ -1,10 +1,13 @@
 import Pipe from './Pipe';
 import _map from '../Flows/Map/Map';
 import _filter from '../Flows/Filter/Filter';
+import _reduce from '../Flows/Reduce/Reduce';
+import _forEach from '../Flows/ForEach/ForEach';
 
 describe('Pipe', () => {
     let Arr;
     let pipe;
+    let params;
 
     const method = (handler) => {
         return true;
@@ -16,6 +19,11 @@ describe('Pipe', () => {
 
     beforeEach(() => {
         Arr = [1, 2, 10];
+        params = [
+            Arr,
+            handler
+        ];
+
         pipe = new Pipe(Arr);
     });
 
@@ -27,10 +35,10 @@ describe('Pipe', () => {
 
     describe('@append', () => {
         it('should append queue', () => {
-            pipe.append(method, handler);
+            pipe.append(method, params);
             let queueElement = {
                 method: method,
-                handler: handler
+                params: params
             };
             let pipeLastelement = pipe.queue[pipe.queue.length - 1];
             expect(pipeLastelement).toEqual(queueElement);
@@ -39,50 +47,90 @@ describe('Pipe', () => {
 
     describe('@map', () => {
         beforeEach(() => {
-            spyOn(pipe, 'append');
+            spyOn(pipe, 'append').and.returnValue(pipe);
         });
 
         it('should append queue with map method', () => {
-            pipe.map(handler);
-            expect(pipe.append).toHaveBeenCalledWith(_map, handler);
+            pipe.map();
+            expect(pipe.append).toHaveBeenCalledWith(_map, jasmine.anything());
         });
 
         it('should return pipe', () => {
-            let res = pipe.map(handler);
+            let res = pipe.map();
             expect(res).toBe(pipe);
         });
     });
 
     describe('@filter', () => {
         beforeEach(() => {
-            spyOn(pipe, 'append');
+            spyOn(pipe, 'append').and.returnValue(pipe);
         });
 
         it('should append queue with filter method', () => {
-            pipe.filter(handler);
-            expect(pipe.append).toHaveBeenCalledWith(_filter, handler);
+            pipe.filter();
+            expect(pipe.append).toHaveBeenCalledWith(_filter, jasmine.anything());
         });
 
         it('should return pipe', () => {
-            let res = pipe.filter(handler);
+            let res = pipe.filter();
+            expect(res).toBe(pipe);
+        });
+    });
+
+    describe('@reduce', () => {
+        beforeEach(() => {
+            spyOn(pipe, 'append').and.returnValue(pipe);
+        });
+
+        it('should append queue with filter method', () => {
+            pipe.reduce();
+            expect(pipe.append).toHaveBeenCalledWith(_reduce, jasmine.anything());
+        });
+
+        it('should return pipe', () => {
+            let res = pipe.reduce();
+            expect(res).toBe(pipe);
+        });
+    });
+
+    describe('@forEach', () => {
+        beforeEach(() => {
+            spyOn(pipe, 'append').and.returnValue(pipe);
+        });
+
+        it('should append queue with filter method', () => {
+            pipe.forEach();
+            expect(pipe.append).toHaveBeenCalledWith(_forEach, jasmine.anything());
+        });
+
+        it('should return pipe', () => {
+            let res = pipe.forEach();
             expect(res).toBe(pipe);
         });
     });
 
     describe('@process', () => {
         let queueElement;
+        let bindedMethod;
 
         beforeEach(() => {
             queueElement = {
                 method: method,
-                handler: handler
+                params: params
             };
-            spyOn(queueElement, 'method');
+            bindedMethod = () => {};
+
+            spyOn(queueElement.method, 'bind').and.returnValue(bindedMethod);
+            spyOn(bindedMethod, 'apply');
+            pipe.process(queueElement, Arr);
         });
 
-        it('should process queue element', () => {
-            pipe.process(queueElement, Arr);
-            expect(queueElement.method).toHaveBeenCalledWith(Arr, queueElement.handler);
+        it('should bind pipe value into method', () => {
+            expect(queueElement.method.bind).toHaveBeenCalledWith(pipe, pipe.value);
+        });
+
+        it('should process pipe value with binded method', () => {
+            expect(bindedMethod.apply).toHaveBeenCalledWith(null, params);
         });
     });
 
