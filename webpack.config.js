@@ -10,6 +10,8 @@ module.exports = {
         libraryTarget: 'umd'
     },
 
+    target: 'node',
+
     watch: true,
 
     module: {

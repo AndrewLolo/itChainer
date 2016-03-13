@@ -2,3 +2,4 @@ src/
 .idea/
 karma.config.js
 webpack.config.js
+test.js
