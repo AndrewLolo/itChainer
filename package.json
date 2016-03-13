@@ -1,8 +1,12 @@
 {
   "name": "itchainer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "test.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndrewLolo/itChainer"
+  },
   "scripts": {
     "test": "karma start karma.config.js --singleRun",
     "start": "webpack"
