@@ -1,8 +1,4 @@
-import {quickSort} from './Strategies/Quicksort'
-
-const strategies = {
-    quickSort: quickSort
-};
+import strategies from './Strategies/Strategies'
 
 export default (array, handler, strategy = 'quickSort') => {
     if (typeof array != 'object') {
@@ -13,5 +9,6 @@ export default (array, handler, strategy = 'quickSort') => {
         strategy = 'quickSort';
     }
 
-    return strategies[strategy](array, handler);
+    strategies[strategy](array, handler);
+    return array;
 }

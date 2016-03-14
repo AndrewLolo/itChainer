@@ -290,11 +290,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _Quicksort = __webpack_require__(7);
+	var _Strategies = __webpack_require__(7);
 
-	var strategies = {
-	    quickSort: _Quicksort.quickSort
-	};
+	var _Strategies2 = _interopRequireDefault(_Strategies);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.default = function (array, handler) {
 	    var strategy = arguments.length <= 2 || arguments[2] === undefined ? 'quickSort' : arguments[2];
@@ -303,11 +303,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        throw new TypeError('Incorrect input data: not array');
 	    }
 
-	    if (!strategies.hasOwnProperty(strategy)) {
+	    if (!_Strategies2.default.hasOwnProperty(strategy)) {
 	        strategy = 'quickSort';
 	    }
 
-	    return strategies[strategy](array, handler);
+	    _Strategies2.default[strategy](array, handler);
+	    return array;
 	};
 
 /***/ },
@@ -319,61 +320,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.quickSort = undefined;
 
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	var _Quicksort = __webpack_require__(8);
 
-	var _arguments = arguments;
-
-	var _Utility = __webpack_require__(8);
-
-	var quickSort = exports.quickSort = function quickSort(array, handler) {
-	    var left = _arguments[2] || 0;
-	    var right = _arguments[3] || array.length - 1;
-
-	    console.log(array);
-
-	    if (!array.length) {
-	        return array;
-	    }
-
-	    var _separate = separate(array, handler, left, right);
-
-	    var _separate2 = _slicedToArray(_separate, 2);
-
-	    left = _separate2[0];
-	    right = _separate2[1];
-
-
-	    if (right > 0) {
-	        quickSort(array, handler, 0, right);
-	    }
-
-	    if (array.length > left) {
-	        quickSort(array, handler, left, array.length - left);
-	    }
-	};
-
-	var separate = function separate(array, handler, left, right) {
-	    var baseEl = array[right + left >> 1];
-
-	    while (array[left] < baseEl) {
-	        left++;
-	    }
-
-	    while (array[right] > baseEl) {
-	        right--;
-	    }
-
-	    if (handler(array, left, right)) {
-	        (0, _Utility.swap)(array, left, right);
-	    }
-
-	    return [left, right];
+	exports.default = {
+	    quickSort: _Quicksort.quickSort
 	};
 
 /***/ },
 /* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.quickSort = undefined;
+
+	var _Utility = __webpack_require__(9);
+
+	var quickSort = exports.quickSort = function quickSort(array, handler, left, right) {
+	    left = left || 0;
+	    right = right || array.length - 1;
+	    var leftIndex = left;
+	    var rightIndex = right;
+	    var baseEl = array[leftIndex + rightIndex >> 1];
+
+	    while (leftIndex <= rightIndex) {
+	        while (handler(array[leftIndex], baseEl) === -1) {
+	            leftIndex++;
+	        }
+	        while (handler(array[rightIndex], baseEl) === 1) {
+	            rightIndex--;
+	        }
+	        if (leftIndex <= rightIndex) {
+	            (0, _Utility.swap)(array, leftIndex++, rightIndex--);
+	        }
+	    }
+	    ;
+	    if (left < rightIndex) {
+	        quickSort(array, handler, left, rightIndex);
+	    }
+	    if (leftIndex < right) {
+	        quickSort(array, handler, leftIndex, right);
+	    }
+	};
+
+/***/ },
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";

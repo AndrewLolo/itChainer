@@ -3,6 +3,7 @@ import _map from '../Flows/Map/Map';
 import _filter from '../Flows/Filter/Filter';
 import _reduce from '../Flows/Reduce/Reduce';
 import _forEach from '../Flows/ForEach/ForEach';
+import _sort from '../Flows/Sort/Sort';
 
 describe('Pipe', () => {
     let Arr;
@@ -101,6 +102,22 @@ describe('Pipe', () => {
         it('should append queue with filter method', () => {
             pipe.forEach();
             expect(pipe.append).toHaveBeenCalledWith(_forEach, jasmine.anything());
+        });
+
+        it('should return pipe', () => {
+            let res = pipe.forEach();
+            expect(res).toBe(pipe);
+        });
+    });
+
+    describe('@sort', () => {
+        beforeEach(() => {
+            spyOn(pipe, 'append').and.returnValue(pipe);
+        });
+
+        it('should append queue with filter method', () => {
+            pipe.sort();
+            expect(pipe.append).toHaveBeenCalledWith(_sort, jasmine.anything());
         });
 
         it('should return pipe', () => {
