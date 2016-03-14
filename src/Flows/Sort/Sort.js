@@ -1,6 +1,7 @@
 import strategies from './Strategies/Strategies'
+import BaseFlow from '../BaseFlow';
 
-export default (array, handler, strategy = 'quickSort') => {
+const method = (array, handler, strategy = 'quickSort') => {
     if (typeof array != 'object') {
         throw new TypeError('Incorrect input data: not array');
     }
@@ -11,4 +12,8 @@ export default (array, handler, strategy = 'quickSort') => {
 
     strategies[strategy](array, handler);
     return array;
-}
+};
+
+const ctxIndex = 1;
+
+export default new BaseFlow(method, ctxIndex);

@@ -1,4 +1,6 @@
-export default (array, handler, initialValue = 0) => {
+import BaseFlow from '../BaseFlow';
+
+const method = (array, handler, initialValue = 0) => {
     const length = array.length;
     if (typeof array != 'object') {
         throw new TypeError('Incorrect input data: not array');
@@ -10,4 +12,8 @@ export default (array, handler, initialValue = 0) => {
         aggregator = handler(aggregator, array[i], i, array);
     }
     return aggregator;
-}
+};
+
+const ctxIndex = 2;
+
+export default new BaseFlow(method, ctxIndex);

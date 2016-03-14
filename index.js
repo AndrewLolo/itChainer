@@ -87,19 +87,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Map2 = _interopRequireDefault(_Map);
 
-	var _Filter = __webpack_require__(3);
+	var _Filter = __webpack_require__(4);
 
 	var _Filter2 = _interopRequireDefault(_Filter);
 
-	var _Reduce = __webpack_require__(4);
+	var _Reduce = __webpack_require__(5);
 
 	var _Reduce2 = _interopRequireDefault(_Reduce);
 
-	var _ForEach = __webpack_require__(5);
+	var _ForEach = __webpack_require__(6);
 
 	var _ForEach2 = _interopRequireDefault(_ForEach);
 
-	var _Sort = __webpack_require__(6);
+	var _Sort = __webpack_require__(7);
 
 	var _Sort2 = _interopRequireDefault(_Sort);
 
@@ -107,44 +107,47 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+	var flows = {
+	    map: _Map2.default,
+	    filter: _Filter2.default,
+	    reduce: _Reduce2.default,
+	    forEach: _ForEach2.default,
+	    sort: _Sort2.default
+	};
+
+	var flowKeys = Object.keys(flows);
+
 	var _class = function () {
 	    function _class(iterable) {
 	        _classCallCheck(this, _class);
 
 	        this.value = iterable;
 	        this.queue = [];
+	        this.createFlowMethods(flowKeys);
 	    }
 
 	    _createClass(_class, [{
-	        key: 'map',
-	        value: function map() {
-	            return this.append(_Map2.default, arguments);
-	        }
-	    }, {
-	        key: 'filter',
-	        value: function filter() {
-	            return this.append(_Filter2.default, arguments);
-	        }
-	    }, {
-	        key: 'forEach',
-	        value: function forEach() {
-	            return this.append(_ForEach2.default, arguments);
-	        }
-	    }, {
-	        key: 'reduce',
-	        value: function reduce() {
-	            return this.append(_Reduce2.default, arguments);
-	        }
-	    }, {
-	        key: 'sort',
-	        value: function sort() {
-	            return this.append(_Sort2.default, arguments);
+	        key: 'createFlowMethods',
+	        value: function createFlowMethods(flowKeys) {
+	            var _this = this;
+
+	            var _loop = function _loop(i) {
+	                var flow = flowKeys[i];
+	                _this[flow] = function () {
+	                    return this.append(flows[flow], arguments);
+	                };
+	            };
+
+	            for (var i = 0; i < flowKeys.length; ++i) {
+	                _loop(i);
+	            }
 	        }
 	    }, {
 	        key: 'append',
-	        value: function append(method, params) {
+	        value: function append(flow, params) {
 	            var queueElement = {
-	                method: method,
+	                method: flow.method,
+	                ctxIndex: flow.ctxIndex,
 	                params: params
 	            };
 	            this.queue.push(queueElement);
@@ -153,8 +156,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'process',
 	        value: function process(queueElement, value) {
-	            var method = queueElement.method.bind(this, value);
 	            var params = queueElement.params;
+	            var ctx = params[queueElement.ctxIndex];
+	            var handler = params[0].bind(ctx);
+	            var method = queueElement.method.bind(ctx, value, handler);
+
 	            return method.apply(null, params);
 	        }
 	    }, {
@@ -178,7 +184,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 2 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -188,7 +194,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	exports.default = function (array, handler) {
+	var _BaseFlow = __webpack_require__(3);
+
+	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var method = function method(array, handler) {
 	    var resultArray = [];
 	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
 	        throw new TypeError('Incorrect input data: not array');
@@ -199,9 +211,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return resultArray;
 	};
 
+	var ctxIndex = 1;
+
+	exports.default = new _BaseFlow2.default(method, ctxIndex);
+
 /***/ },
 /* 3 */
 /***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _class = function _class(method, ctxIndex, handlerIndex) {
+	    _classCallCheck(this, _class);
+
+	    this.method = method;
+	    this.ctxIndex = ctxIndex;
+	    this.handlerIndex = handlerIndex;
+	};
+
+	exports.default = _class;
+	;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -211,7 +250,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	exports.default = function (array, handler) {
+	var _BaseFlow = __webpack_require__(3);
+
+	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var method = function method(array, handler) {
 	    var resultArray = [];
 	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
 	        throw new TypeError('Incorrect input data: not array');
@@ -224,9 +269,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return resultArray;
 	};
 
+	var ctxIndex = 1;
+
+	exports.default = new _BaseFlow2.default(method, ctxIndex);
+
 /***/ },
-/* 4 */
-/***/ function(module, exports) {
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -236,7 +285,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	exports.default = function (array, handler) {
+	var _BaseFlow = __webpack_require__(3);
+
+	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var method = function method(array, handler) {
 	    var initialValue = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
 	    var length = array.length;
@@ -256,27 +311,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return aggregator;
 	};
 
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
+	var ctxIndex = 2;
 
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	exports.default = function (array, handler) {
-	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
-	        throw new TypeError('Incorrect input data: not array');
-	    }
-	    for (var i = 0; i < array.length; ++i) {
-	        handler(array[i], i, array);
-	    }
-	    return array;
-	};
+	exports.default = new _BaseFlow2.default(method, ctxIndex);
 
 /***/ },
 /* 6 */
@@ -290,13 +327,49 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _Strategies = __webpack_require__(7);
+	var _BaseFlow = __webpack_require__(3);
 
-	var _Strategies2 = _interopRequireDefault(_Strategies);
+	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	exports.default = function (array, handler) {
+	var method = function method(array, handler) {
+	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
+	        throw new TypeError('Incorrect input data: not array');
+	    }
+	    for (var i = 0; i < array.length; ++i) {
+	        handler(array[i], i, array);
+	    }
+	    return array;
+	};
+
+	var ctxIndex = 1;
+
+	exports.default = new _BaseFlow2.default(method, ctxIndex);
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var _Strategies = __webpack_require__(8);
+
+	var _Strategies2 = _interopRequireDefault(_Strategies);
+
+	var _BaseFlow = __webpack_require__(3);
+
+	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var method = function method(array, handler) {
 	    var strategy = arguments.length <= 2 || arguments[2] === undefined ? 'quickSort' : arguments[2];
 
 	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
@@ -311,21 +384,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return array;
 	};
 
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
+	var ctxIndex = 1;
 
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _Quicksort = __webpack_require__(8);
-
-	exports.default = {
-	    quickSort: _Quicksort.quickSort
-	};
+	exports.default = new _BaseFlow2.default(method, ctxIndex);
 
 /***/ },
 /* 8 */
@@ -336,9 +397,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+
+	var _Quicksort = __webpack_require__(9);
+
+	exports.default = {
+	    quickSort: _Quicksort.quickSort
+	};
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	exports.quickSort = undefined;
 
-	var _Utility = __webpack_require__(9);
+	var _Utility = __webpack_require__(10);
 
 	var quickSort = exports.quickSort = function quickSort(array, handler, left, right) {
 	    left = left || 0;
@@ -368,7 +445,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	"use strict";
