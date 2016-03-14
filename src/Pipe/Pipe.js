@@ -2,6 +2,7 @@ import _map from '../Flows/Map/Map';
 import _filter from '../Flows/Filter/Filter';
 import _reduce from '../Flows/Reduce/Reduce';
 import _forEach from '../Flows/ForEach/ForEach';
+import _sort from '../Flows/Sort/Sort';
 
 export default class {
     constructor(iterable) {
@@ -23,6 +24,10 @@ export default class {
 
     reduce() {
         return this.append(_reduce, arguments);
+    }
+
+    sort() {
+        return this.append(_sort, arguments);
     }
 
     append(method, params) {

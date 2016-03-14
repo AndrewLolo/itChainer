@@ -99,6 +99,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ForEach2 = _interopRequireDefault(_ForEach);
 
+	var _Sort = __webpack_require__(6);
+
+	var _Sort2 = _interopRequireDefault(_Sort);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -130,6 +134,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'reduce',
 	        value: function reduce() {
 	            return this.append(_Reduce2.default, arguments);
+	        }
+	    }, {
+	        key: 'sort',
+	        value: function sort() {
+	            return this.append(_Sort2.default, arguments);
 	        }
 	    }, {
 	        key: 'append',
@@ -267,6 +276,115 @@ return /******/ (function(modules) { // webpackBootstrap
 	        handler(array[i], i, array);
 	    }
 	    return array;
+	};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var _Quicksort = __webpack_require__(7);
+
+	var strategies = {
+	    quickSort: _Quicksort.quickSort
+	};
+
+	exports.default = function (array, handler) {
+	    var strategy = arguments.length <= 2 || arguments[2] === undefined ? 'quickSort' : arguments[2];
+
+	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
+	        throw new TypeError('Incorrect input data: not array');
+	    }
+
+	    if (!strategies.hasOwnProperty(strategy)) {
+	        strategy = 'quickSort';
+	    }
+
+	    return strategies[strategy](array, handler);
+	};
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.quickSort = undefined;
+
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+	var _arguments = arguments;
+
+	var _Utility = __webpack_require__(8);
+
+	var quickSort = exports.quickSort = function quickSort(array, handler) {
+	    var left = _arguments[2] || 0;
+	    var right = _arguments[3] || array.length - 1;
+
+	    console.log(array);
+
+	    if (!array.length) {
+	        return array;
+	    }
+
+	    var _separate = separate(array, handler, left, right);
+
+	    var _separate2 = _slicedToArray(_separate, 2);
+
+	    left = _separate2[0];
+	    right = _separate2[1];
+
+
+	    if (right > 0) {
+	        quickSort(array, handler, 0, right);
+	    }
+
+	    if (array.length > left) {
+	        quickSort(array, handler, left, array.length - left);
+	    }
+	};
+
+	var separate = function separate(array, handler, left, right) {
+	    var baseEl = array[right + left >> 1];
+
+	    while (array[left] < baseEl) {
+	        left++;
+	    }
+
+	    while (array[right] > baseEl) {
+	        right--;
+	    }
+
+	    if (handler(array, left, right)) {
+	        (0, _Utility.swap)(array, left, right);
+	    }
+
+	    return [left, right];
+	};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var swap = exports.swap = function swap(array, src, dest) {
+	    var buffer = array[src];
+	    array[src] = array[dest];
+	    array[dest] = buffer;
 	};
 
 /***/ }
