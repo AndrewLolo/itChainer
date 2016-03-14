@@ -11,6 +11,7 @@ const method = (array, handler, initialValue = 0) => {
     for (let i = 0; i < array.length; ++i) {
         aggregator = handler(aggregator, array[i], i, array);
     }
+
     return aggregator;
 };
 

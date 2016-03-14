@@ -160,7 +160,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var ctx = params[queueElement.ctxIndex];
 	            var handler = params[0].bind(ctx);
 	            var method = queueElement.method.bind(ctx, value, handler);
-
+	            params = _Filter2.default.method(params, function (el, index) {
+	                return index > 0;
+	            });
 	            return method.apply(null, params);
 	        }
 	    }, {
@@ -308,6 +310,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    for (var i = 0; i < array.length; ++i) {
 	        aggregator = handler(aggregator, array[i], i, array);
 	    }
+
 	    return aggregator;
 	};
 

@@ -33,9 +33,8 @@ let result = _(arr)
         console.log(this.d + el);
     }, obj)
     .reduce(function (prV, crV) {
-        console.log(obj);
         return prV + crV;
-    }, null, obj)
+    }, 5, obj)
     .run();
 
 console.log(result);

@@ -45,7 +45,9 @@ export default class {
         let ctx = params[queueElement.ctxIndex];
         let handler = params[0].bind(ctx);
         let method = queueElement.method.bind(ctx, value, handler);
-
+        params = _filter.method(params, (el, index) => {
+           return index > 0;
+        });
         return method.apply(null, params);
     }
 
