@@ -17,5 +17,6 @@ const method = (array, handler, strategy = 'quickSort') => {
 
 const ctxIndex = CONST.SECOND;
 const handlerIndex = CONST.FIRST;
+const type = CONST.TERMINATOR;
 
-export default new BaseFlow(method, ctxIndex, handlerIndex);
+export default new BaseFlow(method, ctxIndex, handlerIndex, type);

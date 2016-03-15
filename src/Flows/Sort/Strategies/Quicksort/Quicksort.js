@@ -19,7 +19,7 @@ export let quickSort = (array, handler, left, right) => {
             swap(array, leftIndex++, rightIndex--);
         }
     }
-    ;
+
     if (left < rightIndex) {
         quickSort(array, handler, left, rightIndex);
     }

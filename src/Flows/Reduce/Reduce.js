@@ -18,5 +18,6 @@ const method = (array, handler, initialValue = 0) => {
 
 const ctxIndex = CONST.THIRD;
 const handlerIndex = CONST.FIRST;
+const type = CONST.TERMINATOR;
 
-export default new BaseFlow(method, ctxIndex, handlerIndex);
+export default new BaseFlow(method, ctxIndex, handlerIndex, type);

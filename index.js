@@ -87,21 +87,25 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Map2 = _interopRequireDefault(_Map);
 
-	var _Filter = __webpack_require__(4);
+	var _Filter = __webpack_require__(5);
 
 	var _Filter2 = _interopRequireDefault(_Filter);
 
-	var _Reduce = __webpack_require__(5);
+	var _Reduce = __webpack_require__(6);
 
 	var _Reduce2 = _interopRequireDefault(_Reduce);
 
-	var _ForEach = __webpack_require__(6);
+	var _ForEach = __webpack_require__(7);
 
 	var _ForEach2 = _interopRequireDefault(_ForEach);
 
-	var _Sort = __webpack_require__(7);
+	var _Sort = __webpack_require__(8);
 
 	var _Sort2 = _interopRequireDefault(_Sort);
+
+	var _FlowConstants = __webpack_require__(4);
+
+	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -133,9 +137,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var _loop = function _loop(i) {
 	                var flow = flowKeys[i];
-	                _this[flow] = function () {
-	                    return this.append(flows[flow], arguments);
-	                };
+
+	                if (flows[flow].type === _FlowConstants2.default.STAGED) {
+	                    _this[flow] = function () {
+	                        return this.appendStaged(flows[flow], arguments);
+	                    };
+	                } else if (flows[flow].type === _FlowConstants2.default.TERMINATOR) {
+	                    _this[flow] = function () {
+	                        return this.appendTerminator(flows[flow], arguments);
+	                    };
+	                }
 	            };
 
 	            for (var i = 0; i < flowKeys.length; ++i) {
@@ -143,40 +154,72 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	    }, {
-	        key: 'append',
-	        value: function append(flow, params) {
+	        key: 'appendStaged',
+	        value: function appendStaged(flow, params) {
+	            var ctx = params[flow.ctxIndex];
+	            var handler = params[flow.handlerIndex].bind(ctx);
+	            var method = flow.method.bind(ctx, this.value, handler);
+
+	            params = _Filter2.default.method(params, function (el, index) {
+	                return index > flow.handlerIndex && index !== flow.ctxIndex;
+	            });
+	            params.length++;
+
 	            var queueElement = {
-	                method: flow.method,
-	                ctxIndex: flow.ctxIndex,
-	                handlerIndex: flow.handlerIndex,
+	                method: method,
+	                handler: handler,
 	                params: params
 	            };
+
 	            this.queue.push(queueElement);
 	            return this;
 	        }
 	    }, {
-	        key: 'process',
-	        value: function process(queueElement, value) {
-	            var params = queueElement.params;
-	            var ctx = params[queueElement.ctxIndex];
-	            var handler = params[queueElement.handlerIndex].bind(ctx);
-	            var method = queueElement.method.bind(ctx, value, handler);
+	        key: 'appendTerminator',
+	        value: function appendTerminator(flow, params) {
+	            var ctx = params[flow.ctxIndex];
+	            var handler = params[flow.handlerIndex].bind(ctx);
+	            var method = flow.method.bind(ctx, this.value, handler);
 
 	            params = _Filter2.default.method(params, function (el, index) {
-	                return index > queueElement.handlerIndex;
+	                return index > flow.handlerIndex && index !== flow.ctxIndex;
 	            });
-	            return method.apply(null, params);
+
+	            var queueElement = {
+	                method: method,
+	                handler: handler,
+	                params: params
+	            };
+
+	            this.queue.push(queueElement);
+	            this.value = this.processQueueIteration();
+	            return this;
+	        }
+	    }, {
+	        key: 'process',
+	        value: function process(queueElement, iterationIndex) {
+	            var params = queueElement.params;
+	            params[params.length - 1] = iterationIndex;
+	            return queueElement.method.apply(null, params);
+	        }
+	    }, {
+	        key: 'processQueueIteration',
+	        value: function processQueueIteration() {
+	            console.log('Process Iteration');
+	            var terminator = this.queue[this.queue.length - 1];
+	            for (var valueIndex = 0; valueIndex < this.value.length; ++valueIndex) {
+	                for (var queueIndex = 0; queueIndex < this.queue.length - 1; ++queueIndex) {
+	                    this.process(this.queue[queueIndex], valueIndex);
+	                }
+	            }
+
+	            this.queue = [];
+	            return terminator.method.apply(null, terminator.params);
 	        }
 	    }, {
 	        key: 'run',
 	        value: function run() {
-	            for (var i = 0; i < this.queue.length; i++) {
-	                if (!this.value) {
-	                    return null;
-	                }
-	                this.value = this.process(this.queue[i], this.value);
-	            }
-	            return this.value;
+	            return this.queue.length ? this.processQueueIteration() : this.value;
 	        }
 	    }]);
 
@@ -202,27 +245,25 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
-	var _FlowConstants = __webpack_require__(11);
+	var _FlowConstants = __webpack_require__(4);
 
 	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var method = function method(array, handler) {
-	    var resultArray = [];
+	var method = function method(array, handler, iterationIndex) {
 	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
 	        throw new TypeError('Incorrect input data: not array');
 	    }
-	    for (var i = 0; i < array.length; ++i) {
-	        resultArray.push(handler(array[i], i, array));
-	    }
-	    return resultArray;
+
+	    array[iterationIndex] = handler(array[iterationIndex], iterationIndex, array);
 	};
 
 	var ctxIndex = _FlowConstants2.default.SECOND;
 	var handlerIndex = _FlowConstants2.default.FIRST;
+	var type = _FlowConstants2.default.STAGED;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex, type);
 
 /***/ },
 /* 3 */
@@ -236,12 +277,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var _class = function _class(method, ctxIndex, handlerIndex) {
+	var _class = function _class(method, ctxIndex, handlerIndex, type) {
 	    _classCallCheck(this, _class);
 
 	    this.method = method;
 	    this.ctxIndex = ctxIndex;
 	    this.handlerIndex = handlerIndex;
+	    this.type = type;
 	};
 
 	exports.default = _class;
@@ -249,6 +291,23 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = {
+	    FIRST: 0,
+	    SECOND: 1,
+	    THIRD: 2,
+	    TERMINATOR: 0,
+	    STAGED: 1
+	};
+
+/***/ },
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -263,7 +322,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
-	var _FlowConstants = __webpack_require__(11);
+	var _FlowConstants = __webpack_require__(4);
 
 	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
 
@@ -284,11 +343,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var ctxIndex = _FlowConstants2.default.SECOND;
 	var handlerIndex = _FlowConstants2.default.FIRST;
+	var type = _FlowConstants2.default.TERMINATOR;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex, type);
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -303,7 +363,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
-	var _FlowConstants = __webpack_require__(11);
+	var _FlowConstants = __webpack_require__(4);
 
 	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
 
@@ -332,45 +392,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var ctxIndex = _FlowConstants2.default.THIRD;
 	var handlerIndex = _FlowConstants2.default.FIRST;
+	var type = _FlowConstants2.default.TERMINATOR;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	var _BaseFlow = __webpack_require__(3);
-
-	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
-
-	var _FlowConstants = __webpack_require__(11);
-
-	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var method = function method(array, handler) {
-	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
-	        throw new TypeError('Incorrect input data: not array');
-	    }
-	    for (var i = 0; i < array.length; ++i) {
-	        handler(array[i], i, array);
-	    }
-	    return array;
-	};
-
-	var ctxIndex = _FlowConstants2.default.SECOND;
-	var handlerIndex = _FlowConstants2.default.FIRST;
-
-	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex, type);
 
 /***/ },
 /* 7 */
@@ -384,7 +408,43 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _Strategies = __webpack_require__(8);
+	var _BaseFlow = __webpack_require__(3);
+
+	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
+
+	var _FlowConstants = __webpack_require__(4);
+
+	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var method = function method(array, handler, iterationIndex) {
+	    if ((typeof array === 'undefined' ? 'undefined' : _typeof(array)) != 'object') {
+	        throw new TypeError('Incorrect input data: not array');
+	    }
+
+	    handler(array[iterationIndex], iterationIndex, array);
+	};
+
+	var ctxIndex = _FlowConstants2.default.SECOND;
+	var handlerIndex = _FlowConstants2.default.FIRST;
+	var type = _FlowConstants2.default.STAGED;
+
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex, type);
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var _Strategies = __webpack_require__(9);
 
 	var _Strategies2 = _interopRequireDefault(_Strategies);
 
@@ -392,7 +452,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
-	var _FlowConstants = __webpack_require__(11);
+	var _FlowConstants = __webpack_require__(4);
 
 	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
 
@@ -415,24 +475,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var ctxIndex = _FlowConstants2.default.SECOND;
 	var handlerIndex = _FlowConstants2.default.FIRST;
+	var type = _FlowConstants2.default.TERMINATOR;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _Quicksort = __webpack_require__(9);
-
-	exports.default = {
-	    quickSort: _Quicksort.quickSort
-	};
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex, type);
 
 /***/ },
 /* 9 */
@@ -443,9 +488,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+
+	var _Quicksort = __webpack_require__(10);
+
+	exports.default = {
+	    quickSort: _Quicksort.quickSort
+	};
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	exports.quickSort = undefined;
 
-	var _Utility = __webpack_require__(10);
+	var _Utility = __webpack_require__(11);
 
 	var quickSort = exports.quickSort = function quickSort(array, handler, left, right) {
 	    left = left || 0;
@@ -465,28 +526,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            (0, _Utility.swap)(array, leftIndex++, rightIndex--);
 	        }
 	    }
-	    ;
+
 	    if (left < rightIndex) {
 	        quickSort(array, handler, left, rightIndex);
 	    }
 	    if (leftIndex < right) {
 	        quickSort(array, handler, leftIndex, right);
 	    }
-	};
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var swap = exports.swap = function swap(array, src, dest) {
-	    var buffer = array[src];
-	    array[src] = array[dest];
-	    array[dest] = buffer;
 	};
 
 /***/ },
@@ -498,10 +544,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.default = {
-	    FIRST: 0,
-	    SECOND: 1,
-	    THIRD: 2
+	var swap = exports.swap = function swap(array, src, dest) {
+	    var buffer = array[src];
+	    array[src] = array[dest];
+	    array[dest] = buffer;
 	};
 
 /***/ }
