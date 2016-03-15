@@ -148,6 +148,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var queueElement = {
 	                method: flow.method,
 	                ctxIndex: flow.ctxIndex,
+	                handlerIndex: flow.handlerIndex,
 	                params: params
 	            };
 	            this.queue.push(queueElement);
@@ -158,10 +159,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function process(queueElement, value) {
 	            var params = queueElement.params;
 	            var ctx = params[queueElement.ctxIndex];
-	            var handler = params[0].bind(ctx);
+	            var handler = params[queueElement.handlerIndex].bind(ctx);
 	            var method = queueElement.method.bind(ctx, value, handler);
+
 	            params = _Filter2.default.method(params, function (el, index) {
-	                return index > 0;
+	                return index > queueElement.handlerIndex;
 	            });
 	            return method.apply(null, params);
 	        }
@@ -200,6 +202,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
+	var _FlowConstants = __webpack_require__(11);
+
+	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var method = function method(array, handler) {
@@ -213,9 +219,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return resultArray;
 	};
 
-	var ctxIndex = 1;
+	var ctxIndex = _FlowConstants2.default.SECOND;
+	var handlerIndex = _FlowConstants2.default.FIRST;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
 
 /***/ },
 /* 3 */
@@ -256,6 +263,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
+	var _FlowConstants = __webpack_require__(11);
+
+	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var method = function method(array, handler) {
@@ -271,9 +282,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return resultArray;
 	};
 
-	var ctxIndex = 1;
+	var ctxIndex = _FlowConstants2.default.SECOND;
+	var handlerIndex = _FlowConstants2.default.FIRST;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
 
 /***/ },
 /* 5 */
@@ -290,6 +302,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _BaseFlow = __webpack_require__(3);
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
+
+	var _FlowConstants = __webpack_require__(11);
+
+	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -314,9 +330,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return aggregator;
 	};
 
-	var ctxIndex = 2;
+	var ctxIndex = _FlowConstants2.default.THIRD;
+	var handlerIndex = _FlowConstants2.default.FIRST;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
 
 /***/ },
 /* 6 */
@@ -334,6 +351,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
+	var _FlowConstants = __webpack_require__(11);
+
+	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var method = function method(array, handler) {
@@ -346,9 +367,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return array;
 	};
 
-	var ctxIndex = 1;
+	var ctxIndex = _FlowConstants2.default.SECOND;
+	var handlerIndex = _FlowConstants2.default.FIRST;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
 
 /***/ },
 /* 7 */
@@ -370,6 +392,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _BaseFlow2 = _interopRequireDefault(_BaseFlow);
 
+	var _FlowConstants = __webpack_require__(11);
+
+	var _FlowConstants2 = _interopRequireDefault(_FlowConstants);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var method = function method(array, handler) {
@@ -387,9 +413,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return array;
 	};
 
-	var ctxIndex = 1;
+	var ctxIndex = _FlowConstants2.default.SECOND;
+	var handlerIndex = _FlowConstants2.default.FIRST;
 
-	exports.default = new _BaseFlow2.default(method, ctxIndex);
+	exports.default = new _BaseFlow2.default(method, ctxIndex, handlerIndex);
 
 /***/ },
 /* 8 */
@@ -460,6 +487,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var buffer = array[src];
 	    array[src] = array[dest];
 	    array[dest] = buffer;
+	};
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = {
+	    FIRST: 0,
+	    SECOND: 1,
+	    THIRD: 2
 	};
 
 /***/ }

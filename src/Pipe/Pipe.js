@@ -34,6 +34,7 @@ export default class {
         let queueElement = {
             method: flow.method,
             ctxIndex: flow.ctxIndex,
+            handlerIndex: flow.handlerIndex,
             params: params
         };
         this.queue.push(queueElement);
@@ -43,10 +44,11 @@ export default class {
     process(queueElement, value) {
         let params = queueElement.params;
         let ctx = params[queueElement.ctxIndex];
-        let handler = params[0].bind(ctx);
+        let handler = params[queueElement.handlerIndex].bind(ctx);
         let method = queueElement.method.bind(ctx, value, handler);
+
         params = _filter.method(params, (el, index) => {
-           return index > 0;
+           return index > queueElement.handlerIndex;
         });
         return method.apply(null, params);
     }

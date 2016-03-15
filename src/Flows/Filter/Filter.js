@@ -1,4 +1,5 @@
 import BaseFlow from '../BaseFlow';
+import CONST from '../FlowConstants';
 
 const method = (array, handler) => {
         let resultArray = [];
@@ -13,6 +14,7 @@ const method = (array, handler) => {
         return resultArray;
     };
 
-const ctxIndex = 1;
+const ctxIndex = CONST.SECOND;
+const handlerIndex = CONST.FIRST;
 
-export default new BaseFlow(method, ctxIndex);
+export default new BaseFlow(method, ctxIndex, handlerIndex);

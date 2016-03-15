@@ -1,4 +1,5 @@
 import BaseFlow from '../BaseFlow';
+import CONST from '../FlowConstants';
 
 const method = (array, handler, initialValue = 0) => {
     const length = array.length;
@@ -15,6 +16,7 @@ const method = (array, handler, initialValue = 0) => {
     return aggregator;
 };
 
-const ctxIndex = 2;
+const ctxIndex = CONST.THIRD;
+const handlerIndex = CONST.FIRST;
 
-export default new BaseFlow(method, ctxIndex);
+export default new BaseFlow(method, ctxIndex, handlerIndex);
